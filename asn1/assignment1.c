@@ -9,18 +9,22 @@
 #define PATH "external_program.out"
 
 //create parent
+
 int main(int argc, char **argv)
 {
 
 	//create child_1
 	pid_t pid = fork();
 
-	if (pid < 0) // fork unsuccessful
+
+	
+	if (pid < 0) // goes here if the fork is unsuccessful
 	{
 		printf("The fork as unsuccessful (1/3) \n");
+		exit(1);
 	}
 
-	if (pid > 0) //parent
+	if (pid > 0) // catches the parent
 	{
 
 
@@ -51,7 +55,10 @@ int main(int argc, char **argv)
 			pid = fork();
 			wait(NULL);
 
-			if (pid > 0)
+
+
+
+			if (pid < 0)
 			{
 				printf("The fork as unsuccessful (3/3) \n");
 			}
@@ -60,30 +67,24 @@ int main(int argc, char **argv)
 			{
 				printf("child_2(PID %d) created child_2.1(PID %d)\n", getppid(), getpid());
 
-				//
+				
 
 				char child_name[] = " for child_2.1";
 				//convert pid to a string
 				pid_t current_pid = getpid();
 				// ex. 34567 for child_2.1
 				char arg[21];
-
 				sprintf(arg, "%d", current_pid);
 
 				strcat(arg, child_name);
 
 				printf("child_2.1 (PID %d) is calling an external program external_program.out and leaving parent\n", getpid());
+				execl(PATH,argv[1],arg,NULL);
 
-				execl(argv[1], PATH, arg, NULL);
 
 				// call_external_program(" for child_2.1");
 
-				exit(1);
-			}
-			else if (pid > 0)
-			{
-				printf("child_2 (PID %d) is waiting for child_2.1 (PID %d) to complete before creating child_2\n", getppid(), getpid());
-
+				
 			}
 			exit(1);
 		}
@@ -91,6 +92,8 @@ int main(int argc, char **argv)
 		//wait for child_2 to terminate
 		wait(NULL);
 
+
+		printf("\n\nid:%d\n\n",getpid());
 		printf("child_1 and child_2 are completed and parent process is terminating…\n");
 
 		//the parent process is ready to terminate
@@ -109,7 +112,6 @@ int main(int argc, char **argv)
 		char child_name[] = " for child_1";
 		//convert pid to a string
 		pid_t current_pid = getpid();
-		// ex. 34567 for child_2.1
 		char arg[40];
 
 		sprintf(arg, "%d", current_pid);
@@ -118,7 +120,10 @@ int main(int argc, char **argv)
 
 		printf("child_1 (PID %d) is calling an external program external_program.out and leaving parent\n", getpid());
 
-				// execl(*argv, PATH, arg, (char*) NULL);
+
+
+		// execl(*argv, PATH, arg, (char*) NULL);
+		execl(PATH,argv[1],arg,NULL);
 
 		exit(1);
 
