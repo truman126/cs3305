@@ -53,6 +53,9 @@ int main(int argc, char **argv)
 			// create child 2.1
 
 			pid = fork();
+
+
+			//blocks child 2 from completing until child 2.1 is done
 			wait(NULL);
 
 
@@ -93,7 +96,6 @@ int main(int argc, char **argv)
 		wait(NULL);
 
 
-		printf("\n\nid:%d\n\n",getpid());
 		printf("child_1 and child_2 are completed and parent process is terminating…\n");
 
 		//the parent process is ready to terminate
