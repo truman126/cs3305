@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 
 				strcat(arg, child_name);
 
-				printf("child_2.1 (PID %d) is calling an external program external_program.out and leaving parent\n", getpid());
+				printf("child_2.1 (PID %d) is calling an external program external_program.out and leaving child_2\n", getpid());
 				execl(PATH,argv[1],arg,NULL);
 
 
