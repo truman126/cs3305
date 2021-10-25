@@ -1,3 +1,9 @@
+/**
+ * Truman Johnston, tjohn54@uwo.ca
+ * Assignment3
+ **/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
