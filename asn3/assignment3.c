@@ -2,7 +2,7 @@
  * Truman Johnston, tjohn54@uwo.ca
  * Assignment3
  **/
-
+// gcc -pthread -o asn assignment3.c <- use this to compile on linux
 
 #include <stdio.h>
 #include <stdlib.h>
