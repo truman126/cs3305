@@ -107,7 +107,7 @@ int main()
 {
 
     // parse the input file
-    FILE *file = fopen("rr_input.txt.txt", "r");
+    FILE *file = fopen("rr_input.txt", "r");
     char line[512];
 
     // restart this loop everytime new processes are needed
