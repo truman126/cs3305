@@ -107,7 +107,7 @@ int main()
 {
 
     // parse the input file
-    FILE *file = fopen("rr_input.txt", "r");
+    FILE *file = fopen("rr_input.txt.txt", "r");
     char line[512];
 
     // restart this loop everytime new processes are needed
@@ -145,15 +145,15 @@ int main()
         for (int j = 0; j < num_processes; j++)
         {
             
-            printf("Process: %s Arrival Time: %d Burst time: %d Waiting Time: %d Turnaround Time: %d\n\n", processes[j].name, processes[j].arrival_time, processes[j].original_burst_time, processes[j].waiting_time, processes[j].turnaround_time);
+            printf("Process: %s Arrival Time: %d Burst time: %d Waiting Time: %d Turnaround Time: %d\n", processes[j].name, processes[j].arrival_time, processes[j].original_burst_time, processes[j].waiting_time, processes[j].turnaround_time);
             
             ttl_waiting += processes[j].waiting_time;
             ttl_turnaround += processes[j].turnaround_time;
 
         }
-        printf("Total Turnaround Time: %2.0f\n", ttl_turnaround );
+            printf("Total Turnaround Time: %2.0f\n", ttl_turnaround );
             printf("Average Waiting Time: %.2fs\n", (ttl_waiting / num_processes));
-            printf("Average Turnaround Time: %.2f\n\n\n", (ttl_turnaround / num_processes) );
+            printf("Average Turnaround Time: %.2f\n\n", (ttl_turnaround / num_processes) );
     }
 
     // close the file
