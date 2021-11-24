@@ -15,9 +15,6 @@ struct account
 {
     char name[4];
     int balance;
-
-    //0 = not in use
-    //1 = in use
     int semaphore;
 };
 
@@ -27,15 +24,19 @@ struct client
     char *actions[1024];
     int num_actions;
 };
-struct arg_struct {
-    int **accounts;
-    int **clients;
-    int client_id;
-};
+typedef struct arg_struct
+{
+    int client_number;
+    struct client *client_ptr;
+    struct account *account_ptr;
+
+} arg;
+
 
 struct account accounts[];
 struct client clients[];
-int ten = 4;
+
+
 
 int find_account_index(char *account_name)
 {
@@ -51,21 +52,28 @@ int find_account_index(char *account_name)
     }
 }
 
-void *transact_client(void *client_id_ptr)
+void *transact_client(void *argc)
 {
+    int i = 0;
+    arg *thread_data  = (arg*)argc;
+    int client_number = thread_data->client_number;
 
-    
-    int client_id = *((int *)client_id_ptr);
 
-    printf("client test: %d\n", client_id);
-    printf("global var test: %d\n", ten);
-    printf("client struct test: %d\n", accounts[0].balance);
-    
 
-    // for (int i = 0; i < clients[client_id].num_actions; i++){
-    //     printf("hello\n");
-    // }
+    printf("thread data test: %d\n", thread_data->client_number);
+
+    while((strcmp(thread_data->client_ptr[client_number].actions[i], "d") == 0) || (strcmp(thread_data->client_ptr[client_number].actions[i], "w") == 0)){
+    printf("thread data name: %s\n", thread_data->client_ptr[client_number].actions[i]);
+        
+        i++;
+        printf("account to edit: %s\n", thread_data->client_ptr[client_number].actions[i++]);
+        printf("amount: %s\n", thread_data->client_ptr[client_number].actions[i++]);
+
+
+
+    }
     return 0;
+
 }
 
 int main()
@@ -106,10 +114,8 @@ int main()
 
     // CREATE ACCOUNT AND CLIENT STRUCTS
 
-
     struct account accounts[num_accounts];
     struct client clients[num_clients];
-
     int account_number = 0;
 
     for (int i = 0; i < num_accounts * 3; i += 3)
@@ -129,7 +135,6 @@ int main()
 
         strcpy(clients[client_number].name, array[i++]);
         clients[client_number].num_actions = 0;
-        
 
         int j = 0;
         while (1)
@@ -137,7 +142,7 @@ int main()
 
             if ((strcmp(array[i], "d") == 0) || (strcmp(array[i], "w") == 0))
             {
-                
+
                 clients[client_number].actions[j] = malloc(sizeof(array[i]));
                 strcpy(clients[client_number].actions[j++], array[i++]);
 
@@ -151,7 +156,7 @@ int main()
             }
             else
             {
-                
+
                 break;
             }
         }
@@ -159,34 +164,25 @@ int main()
     }
 
     // for each client, open a new process
-    pthread_t thread[num_clients];
+    pthread_t thread;
     i = 0;
     printf("&&client test: '%s'\n", clients[0].actions[0]);
     printf("&&account test: '%s'\n", accounts[0].name);
     printf("&&account test: '%d'\n", accounts[0].balance);
-
+    arg thread_data;
+    thread_data.client_number = 1;
+    thread_data.client_ptr = clients;
+    pthread_create(&thread, NULL, transact_client, &thread_data);
+    pthread_join(thread, NULL);
 
 
     while (num_clients > i)
     {
-        struct args_struct args;
-        args.clients = malloc(sizeof(clients));
-        args.accounts = malloc(sizeof(accounts));
-
         
-        int *index = malloc(sizeof(*index));
-        *index = i;
-        pthread_create(&thread[i], NULL, transact_client, &i);
-        i++;
+        // pthread_join(thread, NULL);
+        i++;    
+        
     }
-
-    i = 0;
-    while (num_clients > i)
-    {
-        pthread_join(thread[i], NULL);
-        i++;
-    }
-
     // pthread_create(&thread_1, NULL, sum, thread_id_1); //thread 100
     // pthread_join(thread_1, NULL);
     // printf()
