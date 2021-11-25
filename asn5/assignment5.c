@@ -21,7 +21,7 @@ struct account
 struct client
 {
     char name[4];
-    char *actions[1024];
+    char *actions[100];
     int num_actions;
 };
 typedef struct arg_struct
@@ -29,51 +29,69 @@ typedef struct arg_struct
     int client_number;
     struct client *client_ptr;
     struct account *account_ptr;
+    int account_number;
 
 } arg;
 
-
-struct account accounts[];
-struct client clients[];
-
-
-
-int find_account_index(char *account_name)
-{
-
-    int i = 0;
-
-    while (accounts[i].name != NULL)
-    {
-        if (accounts[i].name == account_name)
-            return i;
-
-        i++;
-    }
-}
+struct account accounts[0];
+struct client clients[0];
 
 void *transact_client(void *argc)
 {
     int i = 0;
-    arg *thread_data  = (arg*)argc;
+    arg *thread_data = (arg *)argc;
     int client_number = thread_data->client_number;
+    int account_number;
 
+    while ((thread_data->client_ptr[client_number].actions[i] != NULL) && ((strcmp(thread_data->client_ptr[client_number].actions[i], "d") == 0) || (strcmp(thread_data->client_ptr[client_number].actions[i], "w") == 0)))
+    {
 
-
-    printf("thread data test: %d\n", thread_data->client_number);
-
-    while((strcmp(thread_data->client_ptr[client_number].actions[i], "d") == 0) || (strcmp(thread_data->client_ptr[client_number].actions[i], "w") == 0)){
-    printf("thread data name: %s\n", thread_data->client_ptr[client_number].actions[i]);
+        //find account number
+        for (int j = 0; j < thread_data->account_number; j++)
+        {
+            if (strcmp(thread_data->account_ptr[j].name, thread_data->client_ptr[client_number].actions[i + 1]) == 0)
+            {
+                account_number = j;
+            }
+        }
         
-        i++;
-        printf("account to edit: %s\n", thread_data->client_ptr[client_number].actions[i++]);
-        printf("amount: %s\n", thread_data->client_ptr[client_number].actions[i++]);
 
+        //check semaphore
 
+        while (1)
+        {
+            if (thread_data->account_ptr[account_number].semaphore == 0)
+            {
+                break;
+            }
+        }
 
+        //client leaves waiting period, able to
+        //CRITICAL SECTION BEGINS / SET SEMAPHORE TO 1
+        thread_data->account_ptr[account_number].semaphore = 1;
+
+        printf("type: %s. acc: %s. amount: %s\n", thread_data->client_ptr[client_number].actions[i], thread_data->client_ptr[client_number].actions[i+1], thread_data->client_ptr[client_number].actions[i+2]);
+
+        if (strcmp(thread_data->client_ptr[client_number].actions[i], "d") == 0)
+        {
+            thread_data->account_ptr[account_number].balance += atoi(thread_data->client_ptr[client_number].actions[i + 2]);
+            
+        }
+        else if (strcmp(thread_data->client_ptr[client_number].actions[i], "w") == 0)
+        {
+           
+            if (thread_data->account_ptr[account_number].balance >= atoi(thread_data->client_ptr[client_number].actions[i + 2]))
+            {
+                thread_data->account_ptr[account_number].balance -= atoi(thread_data->client_ptr[client_number].actions[i + 2]);
+            }
+        }
+
+        //CRITICAL SECTION ENDS / SET SEMAPHORE TO 0
+        thread_data->account_ptr[account_number].semaphore = 0;
+        i += 3;
     }
-    return 0;
 
+    return 0;
 }
 
 int main()
@@ -111,6 +129,8 @@ int main()
             i++;
         }
     }
+
+    fclose(file);
 
     // CREATE ACCOUNT AND CLIENT STRUCTS
 
@@ -156,6 +176,7 @@ int main()
             }
             else
             {
+                clients[client_number].actions[j] = NULL;
 
                 break;
             }
@@ -163,30 +184,33 @@ int main()
         client_number++;
     }
 
-    // for each client, open a new process
-    pthread_t thread;
-    i = 0;
-    printf("&&client test: '%s'\n", clients[0].actions[0]);
-    printf("&&account test: '%s'\n", accounts[0].name);
-    printf("&&account test: '%d'\n", accounts[0].balance);
-    arg thread_data;
-    thread_data.client_number = 1;
-    thread_data.client_ptr = clients;
-    pthread_create(&thread, NULL, transact_client, &thread_data);
-    pthread_join(thread, NULL);
+    // for each client, open a new thread
+    pthread_t thread[num_clients];
 
-
-    while (num_clients > i)
+    for (int k = 0; k < num_clients; k++)
     {
-        
-        // pthread_join(thread, NULL);
-        i++;    
+        arg thread_data;
+        thread_data.client_number = k;
+        thread_data.client_ptr = clients;
+        thread_data.account_ptr = accounts;
+        thread_data.account_number = num_accounts;
+        pthread_create(&thread[k], NULL, transact_client, &thread_data);
         
     }
-    // pthread_create(&thread_1, NULL, sum, thread_id_1); //thread 100
-    // pthread_join(thread_1, NULL);
-    // printf()
 
-    fclose(file);
+    //close all the threads
+    for (int k = 0; k < num_clients; k++)
+    {
+        pthread_join(thread[k], NULL);
+
+    }
+
+
+    //print details at the end
+
+    for (int k = 0; k < num_accounts; k++)
+    {
+        printf("%s b %d\n\n", accounts[k].name, accounts[k].balance);
+    }
     return 1;
 }
