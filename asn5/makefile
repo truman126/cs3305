@@ -4,7 +4,7 @@ HEADER	=
 OUT	= asn
 CC	 = gcc
 FLAGS	 = -g -c -Wall
-LFLAGS	 = -pthread
+LFLAGS	 = -lpthread
 
 all: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)

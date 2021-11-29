@@ -47,7 +47,8 @@ void *transact_client(void *argc)
     {
 
         //find account number
-        for (int j = 0; j < thread_data->account_number; j++)
+        int j = 0;
+        for (j = 0; j < thread_data->account_number; j++)
         {
             if (strcmp(thread_data->account_ptr[j].name, thread_data->client_ptr[client_number].actions[i + 1]) == 0)
             {
@@ -70,7 +71,7 @@ void *transact_client(void *argc)
         //CRITICAL SECTION BEGINS / SET SEMAPHORE TO 1
         thread_data->account_ptr[account_number].semaphore = 1;
 
-        printf("type: %s. acc: %s. amount: %s\n", thread_data->client_ptr[client_number].actions[i], thread_data->client_ptr[client_number].actions[i+1], thread_data->client_ptr[client_number].actions[i+2]);
+        //printf("type: %s. acc: %s. amount: %s\n", thread_data->client_ptr[client_number].actions[i], thread_data->client_ptr[client_number].actions[i+1], thread_data->client_ptr[client_number].actions[i+2]);
 
         if (strcmp(thread_data->client_ptr[client_number].actions[i], "d") == 0)
         {
@@ -137,8 +138,8 @@ int main()
     struct account accounts[num_accounts];
     struct client clients[num_clients];
     int account_number = 0;
-
-    for (int i = 0; i < num_accounts * 3; i += 3)
+    
+    for (i = 0; i < num_accounts * 3; i += 3)
     {
         strcpy(accounts[account_number].name, array[i]);
         accounts[account_number].balance = atoi(array[i + 2]);
@@ -186,8 +187,8 @@ int main()
 
     // for each client, open a new thread
     pthread_t thread[num_clients];
-
-    for (int k = 0; k < num_clients; k++)
+    int k = 0;
+    for (k = 0; k < num_clients; k++)
     {
         arg thread_data;
         thread_data.client_number = k;
@@ -199,7 +200,7 @@ int main()
     }
 
     //close all the threads
-    for (int k = 0; k < num_clients; k++)
+    for (k = 0; k < num_clients; k++)
     {
         pthread_join(thread[k], NULL);
 
@@ -208,7 +209,7 @@ int main()
 
     //print details at the end
 
-    for (int k = 0; k < num_accounts; k++)
+    for (k = 0; k < num_accounts; k++)
     {
         printf("%s b %d\n\n", accounts[k].name, accounts[k].balance);
     }
